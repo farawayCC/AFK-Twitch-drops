@@ -6,7 +6,7 @@ import selectors from "./selectors.js";
 import fs from "fs";
 
 
-type TBotStatus = "running" | "stopped" | "streamerOffline" | "tokenInvalid";
+type TBotStatus = "running" | "stopped" | "streamerOffline"
 
 export default class Bot extends BotLogic {
 
@@ -14,8 +14,8 @@ export default class Bot extends BotLogic {
     onlineIntervalID: NodeJS.Timeout | null = null;
     screenshotIntervalID: NodeJS.Timeout | null = null;
 
-    constructor(token: string, proxy?: string) {
-        super(token, proxy);
+    constructor(proxy?: string) {
+        super(proxy);
     }
 
 
@@ -23,10 +23,10 @@ export default class Bot extends BotLogic {
         // Start bot
         logging.info("Starting bot... For streamer: " + config.streamer);
         await this.startWatching();
-        logging.info("Setting username...");
-        await this.setUsername(this.streamPage);
+        // logging.info("Setting username...");
+        // await this.setUsername(this.streamPage);
 
-        this.checkUsername();
+        // this.checkUsername();
 
         if (config.adultcontent) {
             try {
@@ -130,7 +130,7 @@ export default class Bot extends BotLogic {
         this.browser = await puppeteer.launch(this.browserConfig);
         this.streamPage = await this.browser.newPage();
         await this.streamPage.setUserAgent(config.userAgent);
-        await this.streamPage.setCookie(this.cookie);
+        // await this.streamPage.setCookie(this.cookie);
         this.browser.on("disconnected", () => {
             logging.error(`Browser closed, hope u wanted it`);
             // process.exit(1);
@@ -177,15 +177,6 @@ export default class Bot extends BotLogic {
         }
     }
 
-    /**
-     * Check if username is set, if not - exit
-     */
-    checkUsername() {
-        if (!this.user) {
-            logging.error("Token is invalid: username not found");
-            this.status = "tokenInvalid";
-        }
-    }
 
 
     async changeQuality() {

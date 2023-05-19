@@ -24,9 +24,9 @@ export default class Bot extends BotLogic {
         logging.info("Starting bot... For streamer: " + config.streamer);
         await this.startWatching();
         // logging.info("Setting username...");
-        // await this.setUsername(this.streamPage);
-
+        await this.setUsername(this.streamPage);
         // this.checkUsername();
+
 
         if (config.adultcontent) {
             try {

@@ -5,6 +5,7 @@ import path from 'path'
 import getProxies, { getAnonProxy } from './Proxies.js'
 import Bot from './Bot.js'
 import { exec } from 'child_process'
+import env from './env.js'
 
 
 const proxiesFromServer: string[] | undefined = await getProxies()
@@ -98,12 +99,10 @@ app.post('/bots/chat/:message', (req: Request, res: Response) => {
 })
 
 
-app.listen(3000, () => {
-    logging.info('Server running on port 3000')
+app.listen(env.PORT, () => {
+    logging.info('Server running on port ' + env.PORT)
     respawnBots();
 })
-
-import puppeteer from 'puppeteer-core';
 
 async function stopBots() {
     logging.important('Stopping all bots...')
@@ -118,8 +117,10 @@ async function stopBots() {
 
 const totalBotsNumber = proxies.length + 1
 async function respawnBots() {
-    logging.warn('Removed all old screenshots')
-    fs.rmdirSync('screenshots', { recursive: true })
+    if (fs.existsSync('screenshots'))
+        fs.rmdirSync('screenshots', { recursive: true })
+    fs.mkdirSync('screenshots')
+    logging.warn('Remov1ed all old screenshots')
 
     logging.important(`Spawning ${totalBotsNumber} bots...`)
     for (let i = 0; i < totalBotsNumber; i++) {

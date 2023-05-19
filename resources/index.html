@@ -34,6 +34,12 @@
             })
         }
 
+        function restartSystem() {
+            $.get('/system/restart', function (data) {
+                alert(data)
+            })
+        }
+
         // Update bots counter every second
         setInterval(updateBotsCounter, 1000)
     </script>
@@ -42,8 +48,9 @@
 <body>
     <h1>Bot Control Panel</h1>
     <p id="running-bots">Loading...</p>
-    <button class="start-button" onclick="startBots()">Start</button>
-    <button class="stop-button" onclick="stopBots()">Stop</button>
+    <!-- <button class="start-button" onclick="startBots()">Start</button>
+    <button class="stop-button" onclick="stopBots()">Stop</button> -->
+    <button class="stop-button" onclick="restartSystem()">Restart System</button>
 </body>
 
 </html>

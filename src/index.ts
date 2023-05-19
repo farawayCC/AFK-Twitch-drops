@@ -4,7 +4,8 @@ import fs from 'fs'
 import path from 'path'
 import getProxies, { getAnonProxy } from './Proxies.js'
 import Bot from './Bot.js'
-import env from './env.js'
+import { exec } from 'child_process'
+
 
 const proxiesFromServer: string[] | undefined = await getProxies()
 if (!proxiesFromServer) {
@@ -29,6 +30,16 @@ app.get('/', (req: Request, res: Response) => {
 app.get('/bots/running', (req: Request, res: Response) => {
     const runningBots = getRunningBots().length
     res.send(`Currently running ${runningBots} bots`)
+})
+
+app.get('/system/restart', async (req: Request, res: Response) => {
+    try {
+        await restartSystem();
+    } catch (error) {
+        logging.error(error)
+        return res.send('Error restarting system, check logs')
+    }
+    res.send('Restarting system...')
 })
 
 function getRunningBots() {
@@ -89,5 +100,21 @@ async function respawnBots() {
         await newBot.start()
     }
     logging.success('All bots started!')
+}
+
+
+async function restartSystem() {
+    return new Promise((resolve, reject) => {
+        // send the system command "pm2 restart all"
+        // this will restart the server and all bots
+        exec('pm2 restart all', (err: any, stdout: any, stderr: any) => {
+            if (err) {
+                logging.error(err)
+                return reject(err)
+            }
+            logging.success(stdout)
+            resolve(stdout)
+        })
+    })
 }
 

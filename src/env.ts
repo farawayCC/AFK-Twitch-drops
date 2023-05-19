@@ -34,8 +34,8 @@ const getConfig = (): ENV => {
         PROXY_API_KEY: process.env.PROXY_API_KEY,
         STREAMER: process.env.STREAMER,
         USE_BROWSERS: process.env.USE_BROWSERS,
-        ONLINE_INTERVAL_MS: Number(process.env.ONLINE_INTERVAL_MS),
-        SCREENSHOT_INTERVAL_MS: Number(process.env.SCREENSHOT_INTERVAL_MS),
+        ONLINE_INTERVAL_MS: parseInt(process.env.ONLINE_INTERVAL_MS || '120000'),
+        SCREENSHOT_INTERVAL_MS: parseInt(process.env.SCREENSHOT_INTERVAL_MS || '20000'),
         CHROME_PATH: process.env.CHROME_PATH,
     };
 }

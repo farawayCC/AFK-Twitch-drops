@@ -52,9 +52,11 @@ export default class Bot extends BotLogic {
 
         logging.info("Starting online check intervals...");
         const context = this;
+        logging.important("Will start checking online status every " + config.onlineinterval + "ms");
         this.onlineIntervalID = setInterval(() => this.onlineInterval(context), config.onlineinterval);
 
         // screenshot interval
+        logging.important("Will start taking screenshots every " + config.screenshotInterval + "ms");
         this.screenshotIntervalID = setInterval(() => this.screenshotInterval(context), config.screenshotInterval)
         return this;
     }

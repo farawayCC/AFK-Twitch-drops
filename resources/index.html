@@ -77,13 +77,9 @@
             if ($('#username').val() === '')
                 $.get('/bots/username', (data) => $('#username').val(data))
         }
-
-        // run once on load
-        updateBotsCounter()
-        updateUsername()
-        // Update data every second
-        setInterval(updateBotsCounter, 1000)
-        setInterval(updateUsername, 1000)
+        // Update data every half a second
+        setInterval(updateBotsCounter, 500)
+        setInterval(updateUsername, 500)
     </script>
 </head>
 

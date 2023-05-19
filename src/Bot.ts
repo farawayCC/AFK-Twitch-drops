@@ -51,7 +51,6 @@ export default class Bot extends BotLogic {
             await this.streamPage.keyboard.press("m");
 
         logging.info("Starting online check intervals...");
-        await this.onlineInterval(this);
         const context = this;
         this.onlineIntervalID = setInterval(() => this.onlineInterval(context), config.onlineinterval);
 

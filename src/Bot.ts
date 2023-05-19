@@ -104,7 +104,7 @@ export default class Bot extends BotLogic {
 
 
     async onlineInterval(context: any) {
-        logging.info("Checking streamer online...");
+        // logging.info("Checking streamer online...");
         let online = await context.getOnline(context.streamPage);
         if (!online) {
             logging.warn(`${config.streamer} is offline now`);
@@ -112,7 +112,7 @@ export default class Bot extends BotLogic {
             context.status = "streamerOffline";
 
         } else {
-            logging.info(`${config.streamer} is online`);
+            // logging.info(`${config.streamer} is online`);
         }
     }
 

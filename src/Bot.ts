@@ -85,9 +85,9 @@ export default class Bot extends BotLogic {
     async stop() {
         this.status = "stopped";
         logging.info("Stopping bot...");
-        await this.browser.close();
         clearInterval(this.onlineIntervalID!);
         clearInterval(this.screenshotIntervalID!);
+        await this.browser.close();
         logging.info("Bot stopped");
     }
 
@@ -166,15 +166,18 @@ export default class Bot extends BotLogic {
      * @param page 
      */
     async setUsername(page: puppeteer.Page) {
-        let cookies = await page.cookies();
-        for (let i = 0; i < cookies.length; i++) {
-            let c = cookies[i];
-            if (c.name === "twilight-user") {
-                let start = c.value.indexOf("displayName%22:%22") + "displayName%22:%22".length;
-                let end = c.value.indexOf("%22%2C%22id%");
-                this.user = c.value.substring(start, end)
-            }
-        }
+        // random username 
+        this.user = Math.random().toString(36).substring(7);
+
+        // let cookies = await page.cookies();
+        // for (let i = 0; i < cookies.length; i++) {
+        //     let c = cookies[i];
+        //     if (c.name === "twilight-user") {
+        //         let start = c.value.indexOf("displayName%22:%22") + "displayName%22:%22".length;
+        //         let end = c.value.indexOf("%22%2C%22id%");
+        //         this.user = c.value.substring(start, end)
+        //     }
+        // }
     }
 
 

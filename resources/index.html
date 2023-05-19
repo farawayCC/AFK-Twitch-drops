@@ -13,6 +13,33 @@
             background-color: red;
             color: white;
         }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal {
+            width: 45%;
+            height: 35%;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform: scale(1.2);
+            transform-origin: center;
+        }
+
+        .modal-content {
+            transform: scale(1.25);
+            transform-origin: center;
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
@@ -40,17 +67,42 @@
             })
         }
 
-        // Update bots counter every second
+        function setUsername() {
+            $.get(`/bots/setUsername?username=${$('#username').val()}`, function (data) {
+                alert(data)
+            })
+        }
+
+        function updateUsername() {
+            if ($('#username').val() === '')
+                $.get('/bots/username', (data) => $('#username').val(data))
+        }
+
+        // run once on load
+        updateBotsCounter()
+        updateUsername()
+        // Update data every second
         setInterval(updateBotsCounter, 1000)
+        setInterval(updateUsername, 1000)
     </script>
 </head>
 
 <body>
-    <h1>Bot Control Panel</h1>
-    <p id="running-bots">Loading...</p>
-    <!-- <button class="start-button" onclick="startBots()">Start</button>
-    <button class="stop-button" onclick="stopBots()">Stop</button> -->
-    <button class="stop-button" onclick="restartSystem()">Restart System</button>
+    <div class="modal">
+        <div class="modal-content">
+            <h1>Bot Control Panel</h1>
+            <p id="running-bots">Loading...</p>
+            <button class="start-button" onclick="startBots()">Start</button>
+            <button class="stop-button" onclick="stopBots()">Stop</button>
+            <button class="stop-button" onclick="restartSystem()">Restart System</button>
+            <br />
+            <br />
+            <div>
+                <input type="text" id="username" placeholder="Username" onsubmit="setUsername()">
+                <button class="stop-button" onclick="setUsername()">Set Username</button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

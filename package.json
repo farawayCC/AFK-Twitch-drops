@@ -25,6 +25,7 @@
     "description": "A small app based on Puppeteer to watch Twitch.",
     "devDependencies": {
         "@types/express": "^4.17.17",
+        "@types/puppeteer-core": "^7.0.4",
         "nodemon": "^2.0.22"
     }
 }

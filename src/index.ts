@@ -21,6 +21,14 @@ const app = express()
 
 app.use(express.json())
 
+// log url and method
+// app.use((req, res, next) => {
+//     if (req.url !== '/bots/running')
+//         logging.info(`${req.method} ${req.url}`)
+//     next()
+// })
+
+
 app.get('/', (req: Request, res: Response) => {
     const filepath = path.join('resources', 'index.html')
     const file = fs.readFileSync(filepath, 'utf8')
@@ -47,12 +55,8 @@ function getRunningBots() {
 }
 
 
-app.post('/bots/start', (req, res) => {
-    bots.forEach(bot => {
-        if (!bot.isRunning()) {
-            bot.start()
-        }
-    })
+app.post('/bots/start', async (req: Request, res: Response) => {
+    await respawnBots()
     res.send('Started all bots')
 })
 
@@ -60,6 +64,27 @@ app.post('/bots/stop', async (req, res) => {
     await stopBots()
     res.send('Stopped all bots')
 })
+
+app.get('/bots/setUsername', async (req: Request, res: Response) => {
+    const username = req.query.username
+    if (!username) return res.send('No username provided')
+    await stopBots()
+
+    const envPath = '.env'
+    const envFile = fs.readFileSync(envPath, 'utf8')
+    const newEnvFile = envFile.replace(/STREAMER=.*/g, `STREAMER=${username}`)
+    fs.writeFileSync(envPath, newEnvFile)
+
+    res.send('Set username to ' + username)
+})
+
+app.get('/bots/username', (req: Request, res: Response) => {
+    const envPath = '.env'
+    const envFile = fs.readFileSync(envPath, 'utf8')
+    const username = envFile.match(/STREAMER=(.*)/)?.[1]
+    res.send(username)
+})
+
 
 app.post('/bots/chat/:message', (req: Request, res: Response) => {
     // const message = req.params.message
@@ -78,6 +103,7 @@ app.listen(3000, () => {
     respawnBots();
 })
 
+import puppeteer from 'puppeteer-core';
 
 async function stopBots() {
     logging.important('Stopping all bots...')
@@ -92,6 +118,9 @@ async function stopBots() {
 
 const totalBotsNumber = proxies.length + 1
 async function respawnBots() {
+    logging.warn('Removed all old screenshots')
+    fs.rmdirSync('screenshots', { recursive: true })
+
     logging.important(`Spawning ${totalBotsNumber} bots...`)
     for (let i = 0; i < totalBotsNumber; i++) {
         const proxy = await getAnonProxy(proxies, i)

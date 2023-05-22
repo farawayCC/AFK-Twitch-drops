@@ -25,6 +25,7 @@ export default class Bot extends BotLogic {
         await this.startWatching();
         // logging.info("Setting username...");
         await this.setUsername(this.streamPage);
+        await this.screenshotInterval(this);
         // this.checkUsername();
 
 

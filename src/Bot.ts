@@ -4,6 +4,7 @@ import logging from "improved-logging";
 import puppeteer from "puppeteer-core";
 import selectors from "./selectors.js";
 import fs from "fs";
+import { Screenshoter } from "./Screenshoter.js";
 
 
 type TBotStatus = "running" | "stopped" | "streamerOffline"
@@ -25,7 +26,7 @@ export default class Bot extends BotLogic {
         await this.startWatching();
         // logging.info("Setting username...");
         await this.setUsername(this.streamPage);
-        await this.screenshotInterval(this);
+        await Screenshoter.makeScreenshot(this.streamPage, this.user);
         // this.checkUsername();
 
 
@@ -58,27 +59,10 @@ export default class Bot extends BotLogic {
 
         // screenshot interval
         logging.important("Will start taking screenshots every " + config.screenshotInterval + "ms");
-        this.screenshotIntervalID = setInterval(() => this.screenshotInterval(context), config.screenshotInterval)
+        this.screenshotIntervalID = setInterval(() => Screenshoter.makeScreenshot(context.streamPage, context.user), config.screenshotInterval)
         return this;
     }
 
-    async screenshotInterval(context: any) {
-        // empty and ensure folder
-        if (!fs.existsSync("./screenshots"))
-            fs.mkdirSync("./screenshots");
-
-        // prepare to screenshot: zoom out the chrome page
-        await context.streamPage.evaluate(() => {
-            // @ts-ignore
-            document.body.style.zoom = "65%";
-        });
-
-        // make screenshot
-        const screenPath = `./screenshots/${context.user}.png`
-        if (fs.existsSync(screenPath))
-            fs.rmSync(screenPath, { recursive: true });
-        context.streamPage.screenshot({ path: screenPath });
-    }
 
     isRunning() {
         return this.status === "running";

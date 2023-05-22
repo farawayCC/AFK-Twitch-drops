@@ -6,6 +6,7 @@ import getProxies, { getAnonProxy } from './Proxies.js'
 import Bot from './Bot.js'
 import { exec } from 'child_process'
 import env from './env.js'
+import { Screenshoter } from './Screenshoter.js'
 
 
 const proxiesFromServer: string[] | undefined = await getProxies()
@@ -30,6 +31,8 @@ app.use(express.json())
 // })
 
 
+// -- Routes -- //
+
 app.get('/', (req: Request, res: Response) => {
     const filepath = path.join('resources', 'index.html')
     const file = fs.readFileSync(filepath, 'utf8')
@@ -51,11 +54,6 @@ app.get('/system/restart', async (req: Request, res: Response) => {
     res.send('Restarting system...')
 })
 
-function getRunningBots() {
-    return bots.filter(bot => bot.status === 'running')
-}
-
-
 app.post('/bots/start', async (req: Request, res: Response) => {
     await respawnBots()
     res.send('Started all bots')
@@ -63,6 +61,7 @@ app.post('/bots/start', async (req: Request, res: Response) => {
 
 app.post('/bots/stop', async (req, res) => {
     await stopBots()
+    Screenshoter.clearScreenshots()
     res.send('Stopped all bots')
 })
 
@@ -98,11 +97,30 @@ app.post('/bots/chat/:message', (req: Request, res: Response) => {
     res.send('Not implemented yet')
 })
 
+app.get('/images', (req: Request, res: Response) => {
+    const images = Screenshoter.getScreenshots()
+    type ImageData = { name: string, url: string }
+    let result: ImageData[] = []
+    for (let i = 0; i < images.length; i++) {
+        const image = images[i]
+        const url = `/image/${image}`
+        result.push({ name: image, url })
+    }
+    res.send(result)
+})
+
+app.use('/image', express.static(Screenshoter.getDirectory()))
+
+
+
+// -- Start Server -- //
 
 app.listen(env.PORT, () => {
     logging.info('Server running on port ' + env.PORT)
     respawnBots();
 })
+
+// -- Functions -- //
 
 async function stopBots() {
     logging.important('Stopping all bots...')
@@ -117,9 +135,7 @@ async function stopBots() {
 
 const totalBotsNumber = proxies.length + 1
 async function respawnBots() {
-    if (fs.existsSync('screenshots'))
-        fs.rmdirSync('screenshots', { recursive: true })
-    fs.mkdirSync('screenshots')
+    Screenshoter.clearScreenshots()
     logging.warn('Remov1ed all old screenshots')
 
     logging.important(`Spawning ${totalBotsNumber} bots...`)
@@ -148,3 +164,7 @@ async function restartSystem() {
     })
 }
 
+
+function getRunningBots() {
+    return bots.filter(bot => bot.status === 'running')
+}

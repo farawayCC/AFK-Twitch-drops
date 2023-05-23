@@ -4,3 +4,5 @@ dist
 .env
 screenshots
 temp
+linux.env
+env.txt

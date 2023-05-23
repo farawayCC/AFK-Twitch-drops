@@ -9,7 +9,7 @@ import env from './env.js'
 import { Screenshoter } from './Screenshoter.js'
 
 
-const proxiesFromServer: string[] | undefined = await getProxies()
+const proxiesFromServer: string[] | undefined = await getProxies(env.MAX_BOTS)
 if (!proxiesFromServer) {
     logging.error('No proxies found, exiting')
     process.exit(1)

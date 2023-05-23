@@ -9,7 +9,9 @@ dotenv.config({ path: '.env' });
 // as someone could skip these varibales or not setup a .env file at all
 interface ENV {
     PORT: number | undefined
+    MAX_BOTS: number | undefined
     PROXY_API_KEY: string | undefined
+    PROXY_WEBSHARE_API_KEY: string | undefined
     STREAMER: string | undefined
     USE_BROWSERS: string | undefined
     ONLINE_INTERVAL_MS: number | undefined
@@ -19,7 +21,9 @@ interface ENV {
 
 interface Config {
     PORT: number
+    MAX_BOTS: number
     PROXY_API_KEY: string
+    PROXY_WEBSHARE_API_KEY: string
     STREAMER: string
     USE_BROWSERS: boolean
     ONLINE_INTERVAL_MS: number | undefined
@@ -31,7 +35,9 @@ interface Config {
 const getConfig = (): ENV => {
     return {
         PORT: parseInt(process.env.PORT || '9876') || 9876,
+        MAX_BOTS: parseInt(process.env.MAX_BOTS || '999999') || 999999,
         PROXY_API_KEY: process.env.PROXY_API_KEY,
+        PROXY_WEBSHARE_API_KEY: process.env.PROXY_WEBSHARE_API_KEY,
         STREAMER: process.env.STREAMER,
         USE_BROWSERS: process.env.USE_BROWSERS,
         ONLINE_INTERVAL_MS: parseInt(process.env.ONLINE_INTERVAL_MS || '120000'),

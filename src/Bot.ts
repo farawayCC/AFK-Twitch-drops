@@ -4,6 +4,7 @@ import logging from "improved-logging";
 import puppeteer from "puppeteer-core";
 import selectors from "./selectors.js";
 import fs from "fs";
+import { Screenshoter } from "./Screenshoter.js";
 
 
 type TBotStatus = "running" | "stopped" | "streamerOffline"
@@ -24,9 +25,10 @@ export default class Bot extends BotLogic {
         logging.info("Starting bot... For streamer: " + config.streamer);
         await this.startWatching();
         // logging.info("Setting username...");
-        // await this.setUsername(this.streamPage);
-
+        await this.setUsername(this.streamPage);
+        await Screenshoter.makeScreenshot(this.streamPage, this.user);
         // this.checkUsername();
+
 
         if (config.adultcontent) {
             try {
@@ -51,32 +53,16 @@ export default class Bot extends BotLogic {
             await this.streamPage.keyboard.press("m");
 
         logging.info("Starting online check intervals...");
-        await this.onlineInterval(this);
         const context = this;
+        logging.important("Will start checking online status every " + config.onlineinterval + "ms");
         this.onlineIntervalID = setInterval(() => this.onlineInterval(context), config.onlineinterval);
 
         // screenshot interval
-        this.screenshotIntervalID = setInterval(() => this.screenshotInterval(context), config.screenshotInterval)
+        logging.important("Will start taking screenshots every " + config.screenshotInterval + "ms");
+        this.screenshotIntervalID = setInterval(() => Screenshoter.makeScreenshot(context.streamPage, context.user), config.screenshotInterval)
         return this;
     }
 
-    async screenshotInterval(context: any) {
-        // empty and ensure folder
-        if (!fs.existsSync("./screenshots"))
-            fs.mkdirSync("./screenshots");
-
-        // prepare to screenshot: zoom out the chrome page
-        await context.streamPage.evaluate(() => {
-            // @ts-ignore
-            document.body.style.zoom = "65%";
-        });
-
-        // make screenshot
-        const screenPath = `./screenshots/${context.user}.png`
-        if (fs.existsSync(screenPath))
-            fs.rmSync(screenPath, { recursive: true });
-        context.streamPage.screenshot({ path: screenPath });
-    }
 
     isRunning() {
         return this.status === "running";
@@ -85,9 +71,9 @@ export default class Bot extends BotLogic {
     async stop() {
         this.status = "stopped";
         logging.info("Stopping bot...");
-        await this.browser.close();
         clearInterval(this.onlineIntervalID!);
         clearInterval(this.screenshotIntervalID!);
+        await this.browser.close();
         logging.info("Bot stopped");
     }
 
@@ -105,7 +91,7 @@ export default class Bot extends BotLogic {
 
 
     async onlineInterval(context: any) {
-        logging.info("Checking streamer online...");
+        // logging.info("Checking streamer online...");
         let online = await context.getOnline(context.streamPage);
         if (!online) {
             logging.warn(`${config.streamer} is offline now`);
@@ -113,7 +99,7 @@ export default class Bot extends BotLogic {
             context.status = "streamerOffline";
 
         } else {
-            logging.info(`${config.streamer} is online`);
+            // logging.info(`${config.streamer} is online`);
         }
     }
 
@@ -166,15 +152,18 @@ export default class Bot extends BotLogic {
      * @param page 
      */
     async setUsername(page: puppeteer.Page) {
-        let cookies = await page.cookies();
-        for (let i = 0; i < cookies.length; i++) {
-            let c = cookies[i];
-            if (c.name === "twilight-user") {
-                let start = c.value.indexOf("displayName%22:%22") + "displayName%22:%22".length;
-                let end = c.value.indexOf("%22%2C%22id%");
-                this.user = c.value.substring(start, end)
-            }
-        }
+        // random username 
+        this.user = Math.random().toString(36).substring(7);
+
+        // let cookies = await page.cookies();
+        // for (let i = 0; i < cookies.length; i++) {
+        //     let c = cookies[i];
+        //     if (c.name === "twilight-user") {
+        //         let start = c.value.indexOf("displayName%22:%22") + "displayName%22:%22".length;
+        //         let end = c.value.indexOf("%22%2C%22id%");
+        //         this.user = c.value.substring(start, end)
+        //     }
+        // }
     }
 
 

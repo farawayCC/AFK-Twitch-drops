@@ -5,13 +5,59 @@
     <title>Suck some dick</title>
     <style>
         .start-button {
-            background-color: green;
+            background-color: #679436;
             color: white;
         }
 
         .stop-button {
-            background-color: red;
+            background-color: #FF4E50;
             color: white;
+        }
+
+        button {
+            border: #DAC6B5;
+            border-radius: 5px;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #202124;
+        }
+
+        .modal {
+            width: 50%;
+            height: 55%;
+            background-color: #DAC6B5;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform: scale(1.2);
+            transform-origin: center;
+            text-align: center;
+        }
+
+        .modal-content {
+            transform: scale(1.25);
+            transform-origin: center;
+            /* center all childs */
+            margin: auto;
+        }
+
+        h1 {
+            color: #202124;
+        }
+
+        #screenshot {
+            border: 2px solid #202124;
+            border-radius: 5px;
+            margin: 3px;
+            box-shadow: 0 10px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)
         }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -40,17 +86,75 @@
             })
         }
 
-        // Update bots counter every second
-        setInterval(updateBotsCounter, 1000)
+        function setUsername() {
+            $.get(`/bots/setUsername?username=${$('#username').val()}`, function (data) {
+                alert(data)
+            })
+        }
+
+        function updateUsername() {
+            if ($('#username').val() === '')
+                $.get('/bots/username', (data) => $('#username').val(data))
+        }
+
+        function fetchImages() {
+            $.get('/images', function (imageObejectArray) {
+                $('#images').empty()
+                const count = imageObejectArray.length
+                $('#images-count').text("Total images: " + count)
+                // Flickering way
+                // imageObejectArray.forEach((imageObject) => {
+                //     const { name, url } = imageObject
+                //     $('#images').append(`<img id="screenshot" src="${url}?timestamp=${Date.now()}" width="=240px" height="120px" />`)
+                // });
+
+                // Preload the images
+                const preloadImages = [];
+                imageObejectArray.forEach((imageObject) => {
+                    const { url } = imageObject;
+                    const img = new Image(180, 120);
+                    img.src = url + "?timestamp=" + Date.now();
+                    img.id = "screenshot";
+                    preloadImages.push(img);
+                });
+
+                // Update the DOM after the images are preloaded
+                $('#images').empty();
+                preloadImages.forEach((img) => {
+                    $('#images').append(img);
+                });
+            })
+        }
+
+        // Update data every half a second
+        setInterval(updateBotsCounter, 500)
+        setInterval(updateUsername, 500)
+        setInterval(fetchImages, 5000)
     </script>
 </head>
 
 <body>
-    <h1>Bot Control Panel</h1>
-    <p id="running-bots">Loading...</p>
-    <!-- <button class="start-button" onclick="startBots()">Start</button>
-    <button class="stop-button" onclick="stopBots()">Stop</button> -->
-    <button class="stop-button" onclick="restartSystem()">Restart System</button>
+    <div class="modal">
+        <div class="modal-content">
+            <h1>Bot Control Panel</h1>
+            <p id="running-bots">Loading...</p>
+            <!-- CONTROLS -->
+            <button class="start-button" onclick="startBots()">Start</button>
+            <button class="stop-button" onclick="stopBots()">Stop</button>
+            <button class="stop-button" onclick="restartSystem()">Restart System</button>
+            <br />
+            <br />
+            <!-- USERNAME -->
+            <div>
+                <input type="text" id="username" placeholder="Username" onsubmit="setUsername()">
+                <button class="stop-button" onclick="setUsername()">Set Username</button>
+            </div>
+            <br />
+            <!-- IMAGES -->
+            <p id="images-count">Loading...</p>
+            <div id="images"></div>
+        </div>
+    </div>
 </body>
 
 </html>

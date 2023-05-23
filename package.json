@@ -18,13 +18,15 @@
         "start": "tsc && node dist/index.js",
         "dev:ts": "tsc -w",
         "build": "tsc",
-        "dev": "nodemon dist/index.js"
+        "dev": "nodemon dist/index.js",
+        "make:env": "openssl base64 -A -in .env -out env.txt"
     },
     "author": "farawaycc",
     "license": "MIT",
     "description": "A small app based on Puppeteer to watch Twitch.",
     "devDependencies": {
         "@types/express": "^4.17.17",
+        "@types/puppeteer-core": "^7.0.4",
         "nodemon": "^2.0.22"
     }
 }

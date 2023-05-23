@@ -5,6 +5,8 @@ import path from 'path'
 import getProxies, { getAnonProxy } from './Proxies.js'
 import Bot from './Bot.js'
 import { exec } from 'child_process'
+import env from './env.js'
+import { Screenshoter } from './Screenshoter.js'
 
 
 const proxiesFromServer: string[] | undefined = await getProxies()
@@ -20,6 +22,16 @@ let bots: Bot[] = []
 const app = express()
 
 app.use(express.json())
+
+// log url and method
+// app.use((req, res, next) => {
+//     if (req.url !== '/bots/running')
+//         logging.info(`${req.method} ${req.url}`)
+//     next()
+// })
+
+
+// -- Routes -- //
 
 app.get('/', (req: Request, res: Response) => {
     const filepath = path.join('resources', 'index.html')
@@ -42,24 +54,37 @@ app.get('/system/restart', async (req: Request, res: Response) => {
     res.send('Restarting system...')
 })
 
-function getRunningBots() {
-    return bots.filter(bot => bot.status === 'running')
-}
-
-
-app.post('/bots/start', (req, res) => {
-    bots.forEach(bot => {
-        if (!bot.isRunning()) {
-            bot.start()
-        }
-    })
+app.post('/bots/start', async (req: Request, res: Response) => {
+    await respawnBots()
     res.send('Started all bots')
 })
 
 app.post('/bots/stop', async (req, res) => {
     await stopBots()
+    Screenshoter.clearScreenshots()
     res.send('Stopped all bots')
 })
+
+app.get('/bots/setUsername', async (req: Request, res: Response) => {
+    const username = req.query.username
+    if (!username) return res.send('No username provided')
+    await stopBots()
+
+    const envPath = '.env'
+    const envFile = fs.readFileSync(envPath, 'utf8')
+    const newEnvFile = envFile.replace(/STREAMER=.*/g, `STREAMER=${username}`)
+    fs.writeFileSync(envPath, newEnvFile)
+
+    res.send('Set username to ' + username)
+})
+
+app.get('/bots/username', (req: Request, res: Response) => {
+    const envPath = '.env'
+    const envFile = fs.readFileSync(envPath, 'utf8')
+    const username = envFile.match(/STREAMER=(.*)/)?.[1]
+    res.send(username)
+})
+
 
 app.post('/bots/chat/:message', (req: Request, res: Response) => {
     // const message = req.params.message
@@ -72,12 +97,30 @@ app.post('/bots/chat/:message', (req: Request, res: Response) => {
     res.send('Not implemented yet')
 })
 
+app.get('/images', (req: Request, res: Response) => {
+    const images = Screenshoter.getScreenshots()
+    type ImageData = { name: string, url: string }
+    let result: ImageData[] = []
+    for (let i = 0; i < images.length; i++) {
+        const image = images[i]
+        const url = `/image/${image}`
+        result.push({ name: image, url })
+    }
+    res.send(result)
+})
 
-app.listen(3000, () => {
-    logging.info('Server running on port 3000')
+app.use('/image', express.static(Screenshoter.getDirectory()))
+
+
+
+// -- Start Server -- //
+
+app.listen(env.PORT, () => {
+    logging.info('Server running on port ' + env.PORT)
     respawnBots();
 })
 
+// -- Functions -- //
 
 async function stopBots() {
     logging.important('Stopping all bots...')
@@ -92,6 +135,9 @@ async function stopBots() {
 
 const totalBotsNumber = proxies.length + 1
 async function respawnBots() {
+    Screenshoter.clearScreenshots()
+    logging.warn('Remov1ed all old screenshots')
+
     logging.important(`Spawning ${totalBotsNumber} bots...`)
     for (let i = 0; i < totalBotsNumber; i++) {
         const proxy = await getAnonProxy(proxies, i)
@@ -118,3 +164,6 @@ async function restartSystem() {
     })
 }
 
+function getRunningBots() {
+    return bots.filter(bot => bot.status === 'running')
+}

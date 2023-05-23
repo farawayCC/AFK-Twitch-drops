@@ -8,6 +8,7 @@ dotenv.config({ path: '.env' });
 // Note these variables can possibly be undefined
 // as someone could skip these varibales or not setup a .env file at all
 interface ENV {
+    PORT: number | undefined
     PROXY_API_KEY: string | undefined
     STREAMER: string | undefined
     USE_BROWSERS: string | undefined
@@ -17,6 +18,7 @@ interface ENV {
 }
 
 interface Config {
+    PORT: number
     PROXY_API_KEY: string
     STREAMER: string
     USE_BROWSERS: boolean
@@ -28,11 +30,12 @@ interface Config {
 // Loading process.env as ENV interface
 const getConfig = (): ENV => {
     return {
+        PORT: parseInt(process.env.PORT || '9876') || 9876,
         PROXY_API_KEY: process.env.PROXY_API_KEY,
         STREAMER: process.env.STREAMER,
         USE_BROWSERS: process.env.USE_BROWSERS,
-        ONLINE_INTERVAL_MS: Number(process.env.ONLINE_INTERVAL_MS),
-        SCREENSHOT_INTERVAL_MS: Number(process.env.SCREENSHOT_INTERVAL_MS),
+        ONLINE_INTERVAL_MS: parseInt(process.env.ONLINE_INTERVAL_MS || '120000'),
+        SCREENSHOT_INTERVAL_MS: parseInt(process.env.SCREENSHOT_INTERVAL_MS || '20000'),
         CHROME_PATH: process.env.CHROME_PATH,
     };
 }

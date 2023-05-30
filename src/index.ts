@@ -16,6 +16,10 @@ if (!proxiesFromServer) {
 }
 const proxies = proxiesFromServer || []
 
+if (proxies.length === 0)
+    logging.important('No proxies found. To change this, set MAX_BOTS to -1 in .env, or check proxy provider')
+
+
 
 let bots: Bot[] = []
 
@@ -32,16 +36,18 @@ app.use(express.json())
 
 
 // -- Routes -- //
-
+logging.info('Hosting html file on http://localhost:' + env.PORT)
 app.get('/', (req: Request, res: Response) => {
     const filepath = path.join('resources', 'index.html')
     const file = fs.readFileSync(filepath, 'utf8')
     res.send(file)
 })
 
+app.use(express.static('resources'))
+
 app.get('/bots/running', (req: Request, res: Response) => {
     const runningBots = getRunningBots().length
-    res.send(`Currently running ${runningBots} bots`)
+    res.send(runningBots.toString())
 })
 
 app.get('/bots/status', (req: Request, res: Response) => {
@@ -127,8 +133,7 @@ app.use('/image', express.static(Screenshoter.getDirectory()))
 // -- Start Server -- //
 
 app.listen(env.PORT, () => {
-    logging.info('Server running on port ' + env.PORT)
-    respawnBots();
+    logging.success('Server running on port ' + env.PORT)
 })
 
 // -- Functions -- //

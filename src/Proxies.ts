@@ -14,10 +14,15 @@ export async function getAnonProxy(proxies: string[], i: number): Promise<string
 
 export default async function getProxies(max = 999_999): Promise<string[] | undefined> {
     try {
+        // Skip if proxies are not needed
+        if (max === -1)
+            return []
+
         let proxies: Proxy[] = []
         proxies.push(...(await getProxiesFromProxySeller() || []))
         proxies.push(...(await getProxiesFromWebshare() || []))
 
+        logging.info(`Testing ${proxies.length} proxies`)
         proxies = await asyncFilter<Proxy>(proxies, async (proxy: any) => await isProxyWorking(proxy))
 
         logging.success(`Accumulated ${proxies.length} proxies`)

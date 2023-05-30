@@ -4,19 +4,25 @@
 <head>
     <title>Suck some dick</title>
     <style>
-        .start-button {
+        .green-button {
             background-color: #679436;
             color: white;
         }
 
-        .stop-button {
+        .red-button {
             background-color: #FF4E50;
+            color: white;
+        }
+
+        .violet-button {
+            background-color: blueviolet;
             color: white;
         }
 
         button {
             border: #DAC6B5;
             border-radius: 5px;
+            font-size: 16px;
         }
 
         body {
@@ -67,6 +73,10 @@
             justify-content: center;
             align-items: center;
         }
+
+        .inline {
+            display: inline-block;
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
@@ -76,21 +86,9 @@
             })
         }
 
-        function stopBots() {
-            $.post('/bots/stop', function (data) {
-                alert(data)
-            })
-        }
-
         function updateBotsCounter() {
             $.get('/bots/running', function (data) {
-                $('#running-bots').text(data)
-            })
-        }
-
-        function updateBotsStatus() {
-            $.get('/bots/status', function (data) {
-                $('#bots-status').text("Status: " + JSON.stringify(data))
+                $('#running-bots-count').text(data)
             })
         }
 
@@ -115,7 +113,7 @@
             $.get('/images', function (imageObejectArray) {
                 $('#images').empty()
                 const count = imageObejectArray.length
-                $('#images-count').text("Total images: " + count)
+                // $('#images-count').text("Total images: " + count)
                 // Flickering way
                 // imageObejectArray.forEach((imageObject) => {
                 //     const { name, url } = imageObject
@@ -140,33 +138,54 @@
             })
         }
 
+        function setLanguage(language) {
+            localStorage.setItem('selected-language', language)
+        }
+
         // Update data every half a second
         setInterval(updateBotsCounter, 500)
-        setInterval(updateBotsStatus, 500)
         setInterval(updateUsername, 500)
         setInterval(fetchImages, 5000)
+
+        setTimeout(updateBotsCounter, 1)
+        setTimeout(updateUsername, 1)
+        setTimeout(fetchImages, 1)
     </script>
+
+    <script src="localisation.js"></script>
 </head>
 
 <body>
     <div class="modal">
         <div class="modal-content">
-            <h1>Bot Control Panel</h1>
-            <p id="running-bots">Loading...</p>
-            <!-- Statuses -->
-            <p id="bots-status">Loading...</p>
-            <!-- CONTROLS -->
-            <button class="start-button" onclick="startBots()">Start</button>
-            <button class="stop-button" onclick="stopBots()">Stop</button>
-            <button class="stop-button" onclick="restartSystem()">Restart System</button>
+            <h1 id="bot-control-panel-header">Bot Control Panel</h1>
+            <h4 id="running-bots" class="inline"></h4>
+            <p id="running-bots-count" class="inline">0</p>
+            <p id="running-bots-bots" class="inline"></p>
+            <div>
+                <!-- CONTROLS -->
+                <button class="green-button" id="start-button" onclick="startBots()">Start</button>
+                <button class="red-button" id="restart-system-button" onclick="restartSystem()">Restart System</button>
+            </div>
             <br />
             <br />
             <!-- USERNAME -->
             <div>
                 <input type="text" id="username" placeholder="Username" onsubmit="setUsername()">
-                <button class="stop-button" onclick="setUsername()">Set Username</button>
+                <button class="red-button" id="set-username-button" onclick="setUsername()">Set Username</button>
             </div>
             <br />
+            <!-- Language Selector -->
+            <div>
+                <h4 id="selected-language-header" class="inline">Selected language</h4>
+                <p id="language-selector" class="inline"></p>
+                <div>
+                    <button class="violet-button" id="en-button" onclick="setLanguage('en')">English</button>
+                    <button class="violet-button" id="de-button" onclick="setLanguage('de')">German</button>
+                    <button class="violet-button" id="ru-button" onclick="setLanguage('ru')">Russian</button>
+                    <button class="violet-button" id="ua-button" onclick="setLanguage('ua')">Ukrainian</button>
+                </div>
+            </div>
         </div>
 
         <!-- IMAGES -->

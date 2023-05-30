@@ -75,3 +75,9 @@ npm install
     "dropsinterval": 60000
 }
 ```
+
+
+# TODO:
+- [ ] Better detection of the end of the stream (for low hardware)
+- [ ] New mechanism for start/stop: don't start on server start. Start when button is pressed. This will allow to stop the bots correctly.
+- [X] Localisation: English, Russian, Ukrainian.

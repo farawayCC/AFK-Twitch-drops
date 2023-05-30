@@ -3,13 +3,13 @@ import logging from 'improved-logging'
 import fs from 'fs'
 import path from 'path'
 import getProxies, { getAnonProxy } from './Proxies.js'
-import Bot from './Bot.js'
+import Bot, { TBotStatus } from './Bot.js'
 import { exec } from 'child_process'
 import env from './env.js'
 import { Screenshoter } from './Screenshoter.js'
 
 
-const proxiesFromServer: string[] | undefined = await getProxies()
+const proxiesFromServer: string[] | undefined = await getProxies(env.MAX_BOTS)
 if (!proxiesFromServer) {
     logging.error('No proxies found, exiting')
     process.exit(1)
@@ -43,6 +43,17 @@ app.get('/bots/running', (req: Request, res: Response) => {
     const runningBots = getRunningBots().length
     res.send(`Currently running ${runningBots} bots`)
 })
+
+app.get('/bots/status', (req: Request, res: Response) => {
+    const statuses = bots.map((bot) => bot.status)
+    const statusesCountObject = statuses.reduce((acc: any, curr) => {
+        acc[curr] = (acc[curr] || 0) + 1
+        return acc
+    }, {})
+
+    res.send(statusesCountObject)
+})
+
 
 app.get('/system/restart', async (req: Request, res: Response) => {
     try {

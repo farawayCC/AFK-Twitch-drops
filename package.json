@@ -19,7 +19,7 @@
         "dev:ts": "tsc -w",
         "build": "tsc",
         "dev": "nodemon dist/index.js",
-        "make:env": "openssl base64 -A -in .env -out env.txt"
+        "make:env": "openssl base64 -A -in linux.env -out env.txt"
     },
     "author": "farawaycc",
     "license": "MIT",

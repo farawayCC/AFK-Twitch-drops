@@ -29,8 +29,8 @@
         }
 
         .modal {
-            width: 50%;
-            height: 55%;
+            width: 82vw;
+            height: 80vh;
             background-color: #DAC6B5;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
@@ -59,6 +59,14 @@
             margin: 3px;
             box-shadow: 0 10px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)
         }
+
+        #images-container {
+            max-width: 55vw;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
@@ -77,6 +85,12 @@
         function updateBotsCounter() {
             $.get('/bots/running', function (data) {
                 $('#running-bots').text(data)
+            })
+        }
+
+        function updateBotsStatus() {
+            $.get('/bots/status', function (data) {
+                $('#bots-status').text("Status: " + JSON.stringify(data))
             })
         }
 
@@ -128,6 +142,7 @@
 
         // Update data every half a second
         setInterval(updateBotsCounter, 500)
+        setInterval(updateBotsStatus, 500)
         setInterval(updateUsername, 500)
         setInterval(fetchImages, 5000)
     </script>
@@ -138,6 +153,8 @@
         <div class="modal-content">
             <h1>Bot Control Panel</h1>
             <p id="running-bots">Loading...</p>
+            <!-- Statuses -->
+            <p id="bots-status">Loading...</p>
             <!-- CONTROLS -->
             <button class="start-button" onclick="startBots()">Start</button>
             <button class="stop-button" onclick="stopBots()">Stop</button>
@@ -150,8 +167,11 @@
                 <button class="stop-button" onclick="setUsername()">Set Username</button>
             </div>
             <br />
-            <!-- IMAGES -->
-            <p id="images-count">Loading...</p>
+        </div>
+
+        <!-- IMAGES -->
+        <div id="images-container">
+            <p id="images-count"></p>
             <div id="images"></div>
         </div>
     </div>

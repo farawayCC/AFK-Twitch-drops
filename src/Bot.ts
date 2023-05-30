@@ -7,11 +7,11 @@ import fs from "fs";
 import { Screenshoter } from "./Screenshoter.js";
 
 
-type TBotStatus = "running" | "stopped" | "streamerOffline"
+export type TBotStatus = "starting" | "running" | "stopped" | "streamerOffline"
 
 export default class Bot extends BotLogic {
 
-    status: TBotStatus = "stopped";
+    status: TBotStatus = "starting";
     onlineIntervalID: NodeJS.Timeout | null = null;
     screenshotIntervalID: NodeJS.Timeout | null = null;
 
